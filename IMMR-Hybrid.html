@@ -162,6 +162,7 @@ tbody td:first-child { font-weight:600; }
       <div class="byline-info">
         <span class="byline-name">Anirudh Vadrevu</span>
         <span class="byline-meta">
+          Quantitative Research<br>
           <a class="li-btn" href="https://www.linkedin.com/in/anirudh-vadrevu" target="_blank" rel="noopener"><svg width="14" height="14" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg> Connect on LinkedIn</a>
         </span>
       </div>
@@ -188,11 +189,11 @@ tbody td:first-child { font-weight:600; }
 
 <p class="drop">A few months ago I decided to build a proper systematic trading strategy for Indian equities. Not the kind where you pick two moving averages, watch them cross, and call it a day. Something closer to what a quant fund would actually run: real NSE data, real transaction costs modelled from first principles, and signals grounded in published factor research rather than backtest-mined noise.</p>
 
-<p>The result was the <strong>IMMR-H</strong> — the <em>India Multi-Factor Momentum-Mean Reversion Hybrid</em>. Seventy-seven Nifty 500 stocks. A decade of price history. Three signals combined into a single ranking score. And a transaction cost model that accounted for everything India throws at you: STT, stamp duty, brokerage, market impact, and the cost of borrowing shares to short.</p>
+<p>The result was the <strong>IMMR-H</strong> (the <em>India Multi-Factor Momentum-Mean Reversion Hybrid</em>). Seventy-seven Nifty 500 stocks. A decade of price history. Three signals combined into a single ranking score. And a transaction cost model that accounted for everything India throws at you: STT, stamp duty, brokerage, market impact, and the cost of borrowing shares to short.</p>
 
 <p>It didn't work. And figuring out exactly why turned out to be more useful than if it had.</p>
 
-<div class="pq"><p>"The signals had a monthly IC of 0.1758 — strong enough to be publishable in an academic journal. They were correctly ranking stocks by likely forward performance month after month. The strategy still lost money every single year. Transaction costs ate everything."</p></div>
+<div class="pq"><p>"The signals had a monthly IC of 0.1758, strong enough to be publishable in an academic journal. They were correctly ranking stocks by likely forward performance month after month. The strategy still lost money every single year. Transaction costs ate everything."</p></div>
 
 <p>What follows is how the strategy was built, what the data showed, and why Indian markets punish systematic traders in ways that most global quant frameworks simply aren't designed to handle.</p>
 
@@ -200,31 +201,31 @@ tbody td:first-child { font-weight:600; }
 <div class="sr"><span>The Architecture</span></div>
 <h2>Three Signals, One Score</h2>
 
-<p>The idea is straightforward. Every month, score each stock in the universe using three independent signals. Buy the top quintile. Short the bottom quintile. Rebalance. Each signal targets a different market inefficiency operating at a different time scale — so when one is muted, the others carry the weight.</p>
+<p>The idea is straightforward. Every month, score each stock in the universe using three independent signals. Buy the top quintile. Short the bottom quintile. Rebalance. Each signal targets a different market inefficiency operating at a different time scale, so when one is muted, the others carry the weight.</p>
 
 <div class="sgrid">
   <div class="scard m"><div class="swt">50%</div><div class="snm">Momentum (MOM)</div><div class="sds">12-month risk-adjusted return, skipping the last month. Exploits institutional herding, FII flow clustering, and slow information diffusion into mid-cap prices.</div></div>
-  <div class="scard r"><div class="swt">30%</div><div class="snm">Reversal (REV)</div><div class="sds">Bets against the last 5 days of price movement. Exploits retail overreaction — stronger in India (retail cash equity participation has ranged ~35–45% in recent years per NSE data, vs ~15% in US markets) than in developed markets.</div></div>
-  <div class="scard e"><div class="swt">20%</div><div class="snm">Earnings Drift (EMOM)</div><div class="sds">Detects 3-month price acceleration vs. 12-month trend — proxy for post-earnings announcement drift (PEAD). Academic evidence (Bernard &amp; Thomas 1989 for US; Sehgal &amp; Bijoy 2015 for India) suggests drift persistence may be longer in markets with lower analyst coverage and slower institutional response — characteristics that apply to Indian mid-caps.</div></div>
+  <div class="scard r"><div class="swt">30%</div><div class="snm">Reversal (REV)</div><div class="sds">Bets against the last 5 days of price movement. Exploits retail overreaction, which runs stronger in India (retail cash equity participation has ranged ~35–45% in recent years per NSE data, vs ~15% in US markets) than in developed markets.</div></div>
+  <div class="scard e"><div class="swt">20%</div><div class="snm">Earnings Drift (EMOM)</div><div class="sds">Detects 3-month price acceleration vs. 12-month trend, a proxy for post-earnings announcement drift (PEAD). Academic evidence (Bernard &amp; Thomas 1989 for US; Sehgal &amp; Bijoy 2015 for India) suggests drift persistence may be longer in markets with lower analyst coverage and slower institutional response, a characteristic that applies to Indian mid-caps.</div></div>
 </div>
 
 <h3>The Composite Alpha Formula</h3>
-<p>Before combining, each signal is standardised across the universe — converted to a z-score so a momentum reading and a reversal reading can be added together without one dominating simply because of scale. The composite alpha score is then:</p>
+<p>Before combining, each signal is standardised across the universe, converted to a z-score so a momentum reading and a reversal reading can be added together without one dominating simply because of scale. The composite alpha score is then:</p>
 <div class="formula">Alpha(i) = 0.50 × Z(MOM) + 0.30 × Z(REV) + 0.20 × Z(EMOM)</div>
 
 <div class="box good">
-  <div class="box-lbl">Real Output — November 4, 2016</div>
+  <div class="box-lbl">Real Output: November 4, 2016</div>
   <p><strong>Top 5 longs:</strong> BAJFINANCE.NS, BIOCON.NS, JSWSTEEL.NS, CHOLAFIN.NS, IOC.NS<br>
   <strong>Top 5 shorts:</strong> ABB.NS, TECHM.NS, TATAELXSI.NS, OFSS.NS, LUPIN.NS<br>
   Alpha range across 69 stocks: [−1.027, +1.588]</p>
 </div>
 
 <!-- ═══════════════════════════════════════════════ -->
-<!-- CHART 1: IC OVER TIME — pure inline SVG        -->
+<!-- CHART 1: IC OVER TIME        -->
 <!-- ═══════════════════════════════════════════════ -->
 <div class="cb">
   <div class="ct">Signal Information Coefficient (IC) Over Time</div>
-  <div class="cs">Four-panel edge health monitor · Signal IC over time · ICIR · Rolling 6M Profit Factor · IC vs Universe Breadth</div>
+  <div class="cs">Four-panel edge health monitor: Signal IC over time, ICIR, Rolling 6M Profit Factor, IC vs Universe Breadth</div>
 
   <svg class="chart-svg" viewBox="0 0 740 250" xmlns="http://www.w3.org/2000/svg">
   <defs>
@@ -289,7 +290,7 @@ tbody td:first-child { font-weight:600; }
   <!-- rolling IC line with glow -->
   <polyline fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#lg)" opacity=".92"
     points="79,149 116,81 153,62 190,105 227,93 264,68 301,87 338,112 375,75 412,44 449,99 486,81 523,124 560,87 597,62 634,93 671,105 708,75"/>
-  <!-- x labels — every 3rd bar to avoid cramp -->
+  <!-- x labels -->
   <text x="79"  y="218" fill="rgba(245,240,232,.38)" font-size="9" text-anchor="middle" font-family="monospace">2016</text>
   <text x="190" y="218" fill="rgba(245,240,232,.38)" font-size="9" text-anchor="middle" font-family="monospace">2017</text>
   <text x="301" y="218" fill="rgba(245,240,232,.38)" font-size="9" text-anchor="middle" font-family="monospace">2018</text>
@@ -312,23 +313,23 @@ tbody td:first-child { font-weight:600; }
     <div class="li"><div class="ld" style="background:#C8392B"></div> RED bars = IC &lt; 0 (early 2016 warmup + mid-2020 COVID)</div>
     <div class="li"><div class="ll" style="background:#F0C060"></div> White line = 3M rolling IC · Yellow line = ICIR</div>
   </div>
-  <div class="cn">Mean IC = 0.1758 · ICIR consistently above 0.5 healthy threshold · Profit Factor below 1.3 warning in recent years — implementation drag, not signal decay</div>
+  <div class="cn">Mean IC = 0.1758. ICIR consistently above 0.5 healthy threshold. Profit Factor below 1.3 warning in recent years. Implementation drag, not signal decay.</div>
 </div>
 
-<p>The IC chart tells the most important story of this project. The large majority of rebalance periods (with the exception of a few in the 2016 warmup period and mid-2020) stayed above the 0.05 green threshold — the bar that qualifies as a publishable signal in academic finance. A monthly IC of 0.1758 is worth unpacking carefully because the number needs context. Monthly ICs are structurally larger than daily ICs — daily factor ICs typically run 0.01–0.03 for institutional strategies, because a single day is too short for most signals to express themselves cleanly. At monthly frequency and a 20-day forward return horizon, an IC above 0.05 is considered meaningful; above 0.10 is strong. Across 106 rebalance periods, the t-statistic on this IC is approximately 12.4 — far above any reasonable significance threshold. The ICIR (IC mean divided by its standard deviation over time) comes in around 1.2, which in practitioner terms means the signal is not just strong on average but consistent across time. Values above 1.0 are considered institutionally robust. The signals were doing their job. Ranking stocks by likely forward return, month after month, with genuine skill. The strategy still lost money. That gap is the entire lesson.</p>
+<p>The IC chart tells the most important story of this project. The large majority of rebalance periods (with the exception of a few in the 2016 warmup period and mid-2020) stayed above the 0.05 green threshold, which qualifies as a publishable signal in academic finance. A monthly IC of 0.1758 is worth unpacking carefully because the number needs context. Monthly ICs are structurally larger than daily ICs. Daily factor ICs typically run 0.01–0.03 for institutional strategies, because a single day is too short for most signals to express themselves cleanly. At monthly frequency and a 20-day forward return horizon, an IC above 0.05 is considered meaningful; above 0.10 is strong. Across 106 rebalance periods, the t-statistic on this IC is approximately 12.4, far above any reasonable significance threshold. The ICIR (IC mean divided by its standard deviation over time) comes in around 1.2, which in practitioner terms means the signal is not just strong on average but consistent across time. Values above 1.0 are considered institutionally robust. The signals were doing their job. Ranking stocks by likely forward return, month after month, with genuine skill. The strategy still lost money. That gap is the entire lesson.</p>
 
 <!-- ── SECTION 2 ── -->
 <div class="sr"><span>The Data</span></div>
 <h2>What Ten Years of Data Actually Showed</h2>
 
-<p>The backtest ran from January 2015 to December 2024 — 2,466 trading days across 77 NSE stocks in 8 sectors, using Yahoo Finance adjusted close prices. Three names were dropped from the original universe: TATAMOTORS.NS failed to download cleanly, and IRFC.NS and KPITTECH.NS didn't have enough data because they listed too recently. <strong>Important limitation — survivorship bias:</strong> the 77-stock universe was drawn from <em>current</em> Nifty 500 constituents, meaning stocks that were delisted, went bankrupt, or were dropped from the index between 2015 and 2024 are not included in the backtest. Stocks that failed tend to have had deteriorating fundamentals and price momentum — precisely the characteristics that would have generated strong short signals. Excluding them therefore likely <em>inflates</em> the IC and overstates strategy returns. This is the single most important methodological caveat in this research. A production-grade system would use point-in-time constituent data (available from NSE historical filings or vendors such as Bloomberg/Refinitiv) to construct a survivorship-free universe.</p>
+<p>The backtest ran from January 2015 to December 2024: 2,466 trading days across 77 NSE stocks in 8 sectors, using Yahoo Finance adjusted close prices. Three names were dropped from the original universe: TATAMOTORS.NS failed to download cleanly, and IRFC.NS and KPITTECH.NS didn't have enough data because they listed too recently. <strong>Important limitation, survivorship bias:</strong> the 77-stock universe was drawn from <em>current</em> Nifty 500 constituents, meaning stocks that were delisted, went bankrupt, or were dropped from the index between 2015 and 2024 are not included in the backtest. Stocks that failed tend to have had deteriorating fundamentals and price momentum, precisely the characteristics that would have generated the strongest short signals. Excluding them therefore likely <em>inflates</em> the IC and overstates strategy returns. This is the single most important methodological caveat in this research. A production-grade system would use point-in-time constituent data (available from NSE historical filings or vendors such as Bloomberg/Refinitiv) to construct a survivorship-free universe.</p>
 
 <!-- ═══════════════════════════════════════════════ -->
-<!-- CHART 2: NAV GROWTH — pure SVG                 -->
+<!-- CHART 2: NAV GROWTH                 -->
 <!-- ═══════════════════════════════════════════════ -->
 <div class="cb">
   <div class="ct">Portfolio NAV Growth: IMMR-H vs. Nifty 50</div>
-  <div class="cs">Six-panel performance dashboard · NAV growth vs Nifty 50 · Drawdown · Rolling 1-year return · Rolling Sharpe · Monthly heatmap · Daily return distribution</div>
+  <div class="cs">Six-panel performance dashboard: NAV growth vs Nifty 50, Drawdown, Rolling 1-year return, Rolling Sharpe, Monthly heatmap, Daily return distribution</div>
 
   <svg class="chart-svg" viewBox="0 0 740 280" xmlns="http://www.w3.org/2000/svg">
   <defs>
@@ -369,7 +370,7 @@ tbody td:first-child { font-weight:600; }
     points="65,200 138,203 211,207 283,209 356,214 429,217 501,221 574,225 647,230 720,234"/>
   <!-- start dot -->
   <circle cx="65" cy="200" r="4" fill="#fff" opacity=".6"/>
-  <!-- end markers — clean pill labels -->
+  <!-- end markers -->
   <rect x="692" y="32" width="46" height="20" rx="4" fill="#38bdf8" opacity=".2"/>
   <circle cx="720" cy="45" r="6" fill="#38bdf8" stroke="#0d1a2e" stroke-width="2"/>
   <text x="715" y="29" fill="#7dd3fc" font-size="12" text-anchor="middle" font-family="monospace" font-weight="bold">3.11×</text>
@@ -397,14 +398,14 @@ tbody td:first-child { font-weight:600; }
 </svg>
 
   <div class="leg">
-    <div class="li"><div class="ll" style="background:#4FA3D1"></div> IMMR-H Strategy (cyan line — hugs 1.0× then declines)</div>
-    <div class="li"><div class="ll" style="background:#C8392B"></div> Nifty 50 (orange line — grows to 3.11×)</div>
-    <div class="li"><div class="ll" style="background:#FF69B4"></div> Monthly heatmap — deep red months dominate every year</div>
+    <div class="li"><div class="ll" style="background:#4FA3D1"></div> IMMR-H Strategy (cyan line, hugs 1.0x then declines)</div>
+    <div class="li"><div class="ll" style="background:#C8392B"></div> Nifty 50 (orange line, grows to 3.11x)</div>
+    <div class="li"><div class="ll" style="background:#FF69B4"></div> Monthly heatmap, deep red months dominate every year</div>
   </div>
   <div class="cn">IMMR-H (cyan) flatlines while Nifty 50 (orange) grows to 3.11× · Strategy breaches −10% drawdown limit from 2017 onward · Heatmap shows persistent small monthly losses across all years</div>
 </div>
 
-<p>The numbers are stark. ₹1 invested in the Nifty 50 in January 2016 became ₹3.11 by December 2024 — a CAGR of +15.39% on the price index. ₹1 in IMMR-H became ₹0.52 — down 48% over nine years. To be precise about what this comparison means: the Nifty 50 is a long-only passive index; IMMR-H is a market-neutral long-short strategy. They don't have the same risk profile and shouldn't be held to the same return standard. The fairer point is simpler. A market-neutral strategy with demonstrably predictive signals should at least preserve capital. This one lost nearly half of it. That's not a benchmark failure — that's an execution failure.</p>
+<p>The numbers are stark. ₹1 invested in the Nifty 50 in January 2016 became ₹3.11 by December 2024, a CAGR of +15.39% on the price index. ₹1 in IMMR-H became ₹0.52, down 48% over nine years. To be precise about what this comparison means: the Nifty 50 is a long-only passive index; IMMR-H is a market-neutral long-short strategy. They don't have the same risk profile and shouldn't be held to the same return standard. The fairer point is simpler. A market-neutral strategy with demonstrably predictive signals should at least preserve capital. This one lost nearly half of it. That's not a benchmark failure. It's an execution failure.</p>
 
 <!-- ── CHART 3: ANNUAL RETURNS ── -->
 <div class="cb">
@@ -496,8 +497,8 @@ tbody td:first-child { font-weight:600; }
     <tr><td>Sharpe Ratio</td><td class="nv">−3.271</td><td class="pv">0.534</td><td>❌ Destroys value</td></tr>
     <tr><td>Max Drawdown</td><td class="nv">−48.15%</td><td class="nv">−38.44%</td><td>❌ Worse than market</td></tr>
     <tr><td>Win Rate</td><td class="nv">46.66%</td><td class="pv">54.65%</td><td>❌ Below 50%</td></tr>
-    <tr><td>Signal IC (mean)</td><td class="pv">0.1758</td><td>—</td><td>✅ Strong (monthly, Spearman, 20-day horizon)</td></tr>
-    <tr><td>Total Cost Drag</td><td class="nv">79.94%</td><td>—</td><td>❌ Catastrophic</td></tr>
+    <tr><td>Signal IC (mean)</td><td class="pv">0.1758</td><td>✅</td><td>Strong (monthly, Spearman, 20-day horizon)</td></tr>
+    <tr><td>Total Cost Drag</td><td class="nv">79.94%</td><td>❌</td><td>Catastrophic</td></tr>
   </tbody>
 </table>
 
@@ -517,12 +518,12 @@ Annual turnover (541 trades × avg position size): &nbsp;&nbsp;&nbsp;&nbsp;&nbsp
 Average round-trip cost per trade (India full stack): &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>~0.35%</strong><br>
 Implied annual cost load: 541 × 0.35% = &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>~189% of NAV</strong><br>
 </p>
-<p style="font-size:13px;margin:12px 0 0;color:var(--muted);">Note: The 79.94% cost drag figure is the backtest engine's own output representing the proportion of estimated gross alpha consumed by modelled costs. The Grinold-based gross estimate above provides independent corroboration that costs fully consumed and exceeded the strategy's alpha budget. Both methods point to the same conclusion.</p>
+<p style="font-size:13px;margin:12px 0 0;color:var(--muted);">Note: The 79.94% cost drag figure is the backtest engine's own output representing the proportion of estimated gross alpha consumed by modelled costs. The Grinold-based gross estimate above provides independent corroboration that costs fully consumed and exceeded the strategy's alpha budget. Both methods reach the same conclusion.</p>
 </div> That is 541 trades per year, or 2.2 trades per trading day. Each trade paid India's full cost stack. Every single time.</p>
 
 <!-- ── CHART 4: COST BREAKDOWN ── -->
 <div class="cb">
-  <div class="ct">India's Transaction Cost Stack — Per Round-Trip</div>
+  <div class="ct">India's Transaction Cost Stack</div>
   <div class="cs">Why India is structurally 10× more expensive than US markets for active strategies</div>
 
   <svg class="chart-svg" viewBox="0 0 740 220" xmlns="http://www.w3.org/2000/svg">
@@ -580,7 +581,7 @@ Implied annual cost load: 541 × 0.35% = &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb
   <div class="cn">STT alone (0.10%) is 5× the total government levy in US markets · At 541 trades/year, costs compound catastrophically</div>
 </div>
 
-<div class="pq"><p>"The STT alone is five times what US traders pay in total government levies. If you're building a high-turnover strategy for Indian markets and you haven't modelled this from day one, you're not building a strategy — you're building a cost machine."</p></div>
+<div class="pq"><p>"The STT alone is five times what US traders pay in total government levies. If you're building a high-turnover strategy for Indian markets and you haven't modelled this from day one, you're not building a strategy. You're building a cost machine."</p></div>
 
 <!-- ── CHART 5: DRAWDOWN ── -->
 <div class="cb">
@@ -647,33 +648,33 @@ Implied annual cost load: 541 × 0.35% = &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb
     <div class="li"><div class="ll" style="background:#4FA3D1;opacity:.6"></div> Nifty Drawdown (dashed)</div>
     <div class="li"><div class="ll" style="background:rgba(255,165,0,.6)"></div> −10% Circuit Breaker</div>
   </div>
-  <div class="cn">0% pass rate (all OOS Sharpe below 1.0) · Training IC predicts OOS performance direction (R²=0.717) — signals are real, costs destroy translation to returns</div>
+  <div class="cn">0% pass rate (all OOS Sharpe below 1.0). Training IC predicts OOS performance direction (R²=0.717). Signals are real; costs destroy the translation to returns</div>
 </div>
 
 <!-- ── SECTION 4 ── -->
 <div class="sr"><span>The Fix</span></div>
 <h2>The Signal Works. The Plumbing Doesn't.</h2>
 
-<p>The most important thing the data shows is also the most counterintuitive one. <strong>The signals are not the problem.</strong> An IC of 0.1758 with a t-statistic of 12.4 doesn't happen by chance. The behavioural patterns this strategy targets — momentum, short-term reversal, post-earnings drift — are well-documented phenomena in Indian equity markets (see Sehgal &amp; Bijoy, 2015, on PEAD specifically). They're real. They just get eaten alive before they can translate into returns.</p>
+<p>The most important thing the data shows is also the most counterintuitive one. <strong>The signals are not the problem.</strong> An IC of 0.1758 with a t-statistic of 12.4 doesn't happen by chance. The behavioural patterns this strategy targets (momentum, short-term reversal, post-earnings drift) are well-documented phenomena in Indian equity markets (see Sehgal &amp; Bijoy, 2015, on PEAD specifically). They're real. They just get eaten alive before they can translate into returns.</p>
 
 <div class="dgrid">
   <div class="dc p"><div class="dl">Problem 1</div><div class="dt">Too-Frequent Rebalancing</div><div class="db">Monthly + stop-losses + profit targets = 2.2 trades/day. Each pays the full cost stack. Fix: move to quarterly rebalancing, raise minimum trade threshold to 1.5% weight change.</div></div>
   <div class="dc f"><div class="dl">Fix 1</div><div class="dt">Quarterly Rebalance + Trade Filter</div><div class="db">Turnover drops ~70%. Cost drag falls from ~80% to ~25%. Momentum signals decay slowly enough that quarterly rebalancing still captures most alpha.</div></div>
   <div class="dc p"><div class="dl">Problem 2</div><div class="dt">Unrealistic AUM Assumption</div><div class="db">Market impact modelled for ₹85,000 Cr AUM. A 0.5% position = ₹425 Cr in one stock. Most mid-cap NSE stocks trade only ₹50–200 Cr/day. Impact costs explode.</div></div>
-  <div class="dc f"><div class="dl">Fix 2</div><div class="dt">Calibrate for ₹500–2,000 Cr AUM</div><div class="db">Realistic capacity for a 77-stock strategy. At this size, impact costs drop 80–90%. Acknowledging capacity constraints is intellectually honest — and necessary.</div></div>
+  <div class="dc f"><div class="dl">Fix 2</div><div class="dt">Calibrate for ₹500–2,000 Cr AUM</div><div class="db">Realistic capacity for a 77-stock strategy. At this size, impact costs drop 80–90%. Acknowledging capacity constraints is intellectually honest, and necessary.</div></div>
   <div class="dc p"><div class="dl">Problem 3</div><div class="dt">EMOM Proxy Quality</div><div class="db">Without real Bloomberg EPS consensus, EMOM uses price-acceleration proxy. Noisier signals generate false positives that trigger unnecessary trades.</div></div>
   <div class="dc f"><div class="dl">Fix 3</div><div class="dt">Add Real Earnings Data</div><div class="db">NSE publishes result dates free. ACE Equity provides consensus estimates affordably. Real EPS surprise data would likely double EMOM IC from ~0.04 to ~0.08.</div></div>
 </div>
 
 <!-- ── SECTION 5 ── -->
 <div class="sr"><span>The Bigger Picture</span></div>
-<h2>Why Indian Markets Are Different — and Why That Matters</h2>
+<h2>Why Indian Markets Are Different</h2>
 
-<p>Indian equity markets have genuinely unusual characteristics. Retail investors account for 35–45% of cash market turnover — far more than in developed markets — and they tend to overreact to short-term news in ways that create predictable short-term reversals. SIP inflows of ₹20,000+ crore a month create systematic buying pressure. FII flows cluster into sectors and sustain trends. The behavioural signal quality is arguably better here than in most other large equity markets.</p>
+<p>Indian equity markets have genuinely unusual characteristics. Retail investors account for 35–45% of cash market turnover, far more than in developed markets, and they tend to overreact to short-term news in ways that create predictable short-term reversals. SIP inflows of ₹20,000+ crore a month create systematic buying pressure. FII flows cluster into sectors and sustain trends. The behavioural signal quality is arguably better here than in most other large equity markets.</p>
 
 <div class="box">
   <div class="box-lbl">The Single Most Important Insight</div>
-  <p>In Indian markets, a strategy with <strong>average signals and low turnover</strong> will beat a strategy with <strong>excellent signals and high turnover</strong> almost every time. The transaction cost structure isn't an afterthought — it's the constraint everything else has to be built around. <strong>Model the costs first. Build the signals after.</strong></p>
+  <p>In Indian markets, a strategy with <strong>average signals and low turnover</strong> will beat a strategy with <strong>excellent signals and high turnover</strong> almost every time. The transaction cost structure isn't an afterthought. It's the constraint everything else has to be built around. <strong>Model the costs first. Build the signals after.</strong></p>
 </div>
 
 <!-- ── CHART 6: MONTE CARLO ── -->
@@ -746,7 +747,7 @@ Implied annual cost load: 541 × 0.35% = &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb
     <div class="li"><div style="width:20px;height:10px;background:rgba(79,163,209,.08);border-radius:2px;flex-shrink:0"></div> 5–95% band</div>
     <div class="li"><div class="ll" style="background:rgba(200,57,43,.5)"></div> Break-even 1.0×</div>
   </div>
-  <div class="cn">Median Sharpe = −3.29 · Median Max Drawdown = −21.3% (target limit −12%) · Entire Sharpe distribution sits left of 1.0 — fix costs and the same signals produce Sharpe 1.5+</div>
+  <div class="cn">Median Sharpe = −3.29 · Median Max Drawdown = −21.3% (target limit −12%) · Entire Sharpe distribution sits left of 1.0. Fix costs and the same signals produce Sharpe 1.5+</div>
 </div>
 
 <p>The Monte Carlo doesn't tell you anything the backtest doesn't, but it tells it to you in a way that's harder to dismiss. Run the strategy 1,000 times with slightly different starting conditions, and the median outcome still ends below break-even. The fan chart slopes down not because the signals fail but because costs compound in one direction, relentlessly. Change the rebalancing frequency and recalibrate the AUM and the same 1,000 simulations produce a median Sharpe above 1.5.</p>
@@ -755,7 +756,7 @@ Implied annual cost load: 541 × 0.35% = &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb
 <div class="sr"><span>The Opportunity</span></div>
 <h2>The Question Worth Asking Next</h2>
 
-<p>India moved to <strong>T+1 settlement in 2023</strong> — the fastest in the world. T+1 changes the mechanics of short-term mean reversion. Under T+2, delivery selling pressure took two days to clear. Under T+1, it clears in one. The REV signal should therefore work faster and at a shorter window than 5 days post-T+1.</p>
+<p>India moved to <strong>T+1 settlement in 2023</strong>, the fastest settlement cycle in the world. It changes the mechanics of short-term mean reversion: under T+2, delivery selling pressure took two days to clear; under T+1, it clears in one. The REV signal should therefore work faster and at a shorter window than 5 days post-T+1.</p>
 
 <div class="pq"><p>"India's T+1 settlement is the fastest in the world. Mean reversion strategies built before 2023 were calibrated to a T+2 world. Has the signal window shifted? Nobody has actually checked."</p></div>
 
@@ -763,18 +764,18 @@ Implied annual cost load: 541 × 0.35% = &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb
 
 <p>Building this strategy took longer and went wrong in more ways than I expected. It also taught me more about Indian markets than any book I've read on the subject.</p>
 
-<p>The strategy lost money. But the signals worked. That’s not a consolation — it’s the most useful result. An IC of 0.1758 (monthly Spearman, 20-day horizon, 106 periods, t-stat 12.4) means the ranking of stocks by likely forward return was genuinely predictive, consistently, for a decade. The caveats stand: the universe has survivorship bias, the short leg depends on F&amp;O availability, and the result should be validated on a broader point-in-time dataset before anyone draws firm conclusions. But the core finding is hard to argue with. The inefficiencies this strategy targets — momentum, short-term reversal, post-earnings drift — exist in Indian equities. The data is clear on that.</p>
+<p>The strategy lost money. But the signals worked. That’s not a consolation. It’s the most useful result. An IC of 0.1758 (monthly Spearman, 20-day horizon, 106 periods, t-stat 12.4) means the ranking of stocks by likely forward return was genuinely predictive, consistently, for a decade. The caveats stand: the universe has survivorship bias, the short leg depends on F&amp;O availability, and the result should be validated on a broader point-in-time dataset before anyone draws firm conclusions. But the core finding is hard to argue with. The inefficiencies this strategy targets (momentum, short-term reversal, post-earnings drift) exist in Indian equities. The data is clear on that.</p>
 
 <p>The fix isn't complicated in principle: rebalance quarterly instead of monthly, set a minimum trade threshold so small position adjustments don't generate round-trip costs, calibrate to a realistic AUM, and replace the earnings proxy with real EPS surprise data. The signal is already there. Getting it to survive the journey from signal to return is an execution problem, not a research problem.</p>
 
 <div class="box good">
   <div class="box-lbl">5 Takeaways for Indian Quant Practitioners</div>
   <p>
-    <strong>1.</strong> Model India's full cost stack — especially STT — before backtesting. Not after.<br><br>
+    <strong>1.</strong> Model India's full cost stack, especially STT, before backtesting. Not after.<br><br>
     <strong>2.</strong> Monthly rebalancing is almost always too frequent for momentum strategies at any meaningful AUM.<br><br>
     <strong>3.</strong> A signal IC above 0.05 is genuinely predictive. Protect it by keeping turnover ruthlessly low.<br><br>
     <strong>4.</strong> India's T+1 transition has likely changed short-term reversal dynamics. This is an open, testable, and publishable research question.<br><br>
-    <strong>5.</strong> India's retail-dominated order flow creates stronger behavioural signals than most developed markets. The alpha is real — the implementation cost must be respected equally.
+    <strong>5.</strong> India's retail-dominated order flow creates stronger behavioural signals than most developed markets. The alpha is real. The implementation cost must be respected equally.
   </p>
 </div>
 
@@ -785,17 +786,17 @@ Implied annual cost load: 541 × 0.35% = &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb
 <p>Any backtest worth reading should say clearly what it doesn't prove. Here are the main caveats.</p>
 
 <div class="box warn">
-  <div class="box-lbl">Known Limitations — Read Before Citing</div>
+  <div class="box-lbl">Known Limitations</div>
   <p>
     <strong>Survivorship bias:</strong> The 77-stock universe uses current Nifty 500 constituents. Stocks delisted or removed between 2015–2024 are excluded. This likely inflates the IC and returns. A production system requires point-in-time constituent data.<br><br>
-    <strong>IC interpretation:</strong> The IC of 0.1758 is a <em>monthly</em> Spearman rank correlation against 20-day forward returns on a 77-stock universe (n=106 periods). t-statistic ≈ 12.4 (p &lt; 0.001); ICIR ≈ 1.2 (estimated from chart). Both confirm the signal is statistically significant and consistent. However, monthly ICs are structurally higher than daily ICs — this result should not be compared to daily IC benchmarks from broad institutional factors without adjustment.<br><br>
+    <strong>IC interpretation:</strong> The IC of 0.1758 is a <em>monthly</em> Spearman rank correlation against 20-day forward returns on a 77-stock universe (n=106 periods). t-statistic ≈ 12.4 (p &lt; 0.001); ICIR ≈ 1.2 (estimated from chart). Both confirm the signal is statistically significant and consistent. However, monthly ICs are structurally higher than daily ICs, so this result should not be compared to daily IC benchmarks from broad institutional factors without adjustment.<br><br>
     <strong>Cost drag calculation:</strong> The 79.94% cost drag is an approximation based on estimated gross alpha (derived from IC × volatility × signal breadth) vs. realised net return. Exact decomposition requires trade-level P&amp;L attribution which this backtest does not produce.<br><br>
-    <strong>Short-selling assumptions:</strong> The short leg assumes stocks can be shorted via SSF (Single Stock Futures). In practice, SEBI's daily F&amp;O ban list (which restricts trading in stocks where aggregate open interest exceeds 95% of MWPL) can make short positions impossible to initiate or maintain on specific names — sometimes for multiple consecutive days. This likely overstates short-side contribution.<br><br>
+    <strong>Short-selling assumptions:</strong> The short leg assumes stocks can be shorted via SSF (Single Stock Futures). In practice, SEBI's daily F&amp;O ban list (which restricts trading in stocks where aggregate open interest exceeds 95% of MWPL) can make short positions impossible to initiate or maintain on specific names, sometimes for multiple consecutive days. This likely overstates short-side contribution.<br><br>
     <strong>Yahoo Finance data quality:</strong> While auto-adjustment handles splits and dividends, Yahoo data is not a substitute for institutional-grade data vendors (Bloomberg, Refinitiv, ACE Equity) for production deployment.<br><br>
-    <strong>What this research does support:</strong> The framework design, signal construction methodology, cost modelling approach, and the central diagnosis — that India's transaction cost structure punishes high-turnover strategies — are all valid and reproducible findings.<br><br>
+    <strong>What this research does support:</strong> The framework design, signal construction methodology, cost modelling approach, and the central diagnosis (that India's transaction cost structure punishes high-turnover strategies) are all valid and reproducible findings.<br><br>
 
 <strong>Methodology summary (for citation purposes):</strong><br>
-Universe: 77 NSE stocks (current Nifty 500 constituents, liquidity-filtered) · Data: Yahoo Finance adjusted closes · IC type: Spearman rank correlation · IC horizon: 20 trading days forward · Rebalance: Monthly (21 trading days) · IC periods: n=106 · IC mean: 0.1758 · IC t-stat: ~12.4 · ICIR: ~1.2 · Net return: −7.15% p.a. · Sharpe: −3.271 · Max DD: −48.15% · Benchmark: Nifty 50 price index CAGR +15.39% (Jan 2016–Dec 2024) · Survivorship bias: present (current constituents only) · Short-selling: modelled via SSF; F&O ban list not dynamically applied
+Universe: 77 NSE stocks (current Nifty 500 constituents, liquidity-filtered) · Data: Yahoo Finance adjusted closes · IC type: Spearman rank correlation. IC horizon: 20 trading days forward. Rebalance: Monthly (21 trading days). IC periods: n=106. IC mean: 0.1758. IC t-stat: ~12.4. ICIR: ~1.2. Net return: −7.15% p.a. Sharpe: −3.271. Max DD: −48.15%. Benchmark: Nifty 50 price index CAGR +15.39% (Jan 2016–Dec 2024). Survivorship bias: present (current constituents only). Short-selling: modelled via SSF; F&O ban list not dynamically applied
   </p>
 </div>
 
@@ -806,7 +807,7 @@ Universe: 77 NSE stocks (current Nifty 500 constituents, liquidity-filtered) · 
   <div class="foot-in">
     <div>
       <h4>About This Research</h4>
-      <p>IMMR-H was built in Python using real NSE price data via Yahoo Finance. The full backtesting notebook — signal generation, walk-forward validation, Monte Carlo simulation — is available on request.</p>
+      <p>IMMR-H was built in Python using real NSE price data via Yahoo Finance. The full backtesting notebook (signal generation, walk-forward validation, Monte Carlo simulation) is available on request.</p>
       <div class="tags">
         <span class="tag">#QuantFinance</span><span class="tag">#IndianMarkets</span>
         <span class="tag">#NSE</span><span class="tag">#AlgoTrading</span>
@@ -816,7 +817,7 @@ Universe: 77 NSE stocks (current Nifty 500 constituents, liquidity-filtered) · 
     </div>
     <div>
       <h4>Methodology</h4>
-      <p>Backtest: Jan 2015–Dec 2024. Universe: 77 Nifty 500 stocks (current constituents with sufficient data history — potential survivorship bias; historical deletions not included). Rebalance: Monthly. Signals: MOM 50%, REV 30%, EMOM 20%. Full costs modelled: STT, stamp duty, exchange charges, market impact. Risk-free rate: 6.5% (RBI repo average). Walk-forward: 3yr train / 1yr test. Monte Carlo: 1,000 block-bootstrap simulations.</p>
+      <p>Backtest: Jan 2015–Dec 2024. Universe: 77 Nifty 500 stocks (current constituents with sufficient data history. Potential survivorship bias: historical deletions not included). Rebalance: Monthly. Signals: MOM 50%, REV 30%, EMOM 20%. Full costs modelled: STT, stamp duty, exchange charges, market impact. Risk-free rate: 6.5% (RBI repo average). Walk-forward: 3yr train / 1yr test. Monte Carlo: 1,000 block-bootstrap simulations.</p>
     </div>
   </div>
 </footer>
